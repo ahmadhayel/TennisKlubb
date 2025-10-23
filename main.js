@@ -80,7 +80,57 @@ function updateSwiperImage(eventName, args) {
     );
   }
 }
+// Typing animation med textbyte
+document.addEventListener("DOMContentLoaded", function () {
+  const textElement = document.getElementById("changing-text");
+  const cursor = document.querySelector(".cursor");
 
+  if (!textElement) return;
+
+  const texts = ["Tennis Klubb", "Padel Klubb", "Tennis & Padel Klubb"];
+
+  let textIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  let typingSpeed = 100;
+  let deletingSpeed = 50;
+  let pauseBetween = 2000;
+
+  function type() {
+    const currentText = texts[textIndex];
+
+    if (isDeleting) {
+      // Radera text
+      textElement.textContent = currentText.substring(0, charIndex - 1);
+      charIndex--;
+      typingSpeed = deletingSpeed;
+    } else {
+      // Skriv text
+      textElement.textContent = currentText.substring(0, charIndex + 1);
+      charIndex++;
+      typingSpeed = 100;
+    }
+
+    // Kolla om vi är klara med att skriva
+    if (!isDeleting && charIndex === currentText.length) {
+      // Pausa innan radering
+      typingSpeed = pauseBetween;
+      isDeleting = true;
+    }
+    // Kolla om vi är klara med att radera
+    else if (isDeleting && charIndex === 0) {
+      isDeleting = false;
+      // Byt till nästa text
+      textIndex = (textIndex + 1) % texts.length;
+      typingSpeed = 500; // Paus innan nästa text
+    }
+
+    setTimeout(type, typingSpeed);
+  }
+
+  // Starta animation efter 1 sekund
+  setTimeout(type, 1000);
+});
 const swiper = new Swiper(".swiper", {
   loop: true,
 
