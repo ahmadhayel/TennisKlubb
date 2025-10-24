@@ -1,0 +1,26 @@
+<section class="news-section">
+  <h2>Senaste Nyheterna</h2>
+  <div id="news-container"></div>
+</section>
+
+<script>
+  // Hämta nyheter från mappen
+  fetch("/news/index.json")
+    .then((response) => response.json())
+    .then((news) => {
+      let html = "";
+      news.forEach((item) => {
+        html += `
+                <article class="news-item">
+                    <h3>${item.title}</h3>
+                    <p class="news-date">${new Date(
+                      item.date
+                    ).toLocaleDateString("sv-SE")}</p>
+                    <p>${item.description}</p>
+                    <a href="/news/${item.slug}/">Läs mer</a>
+                </article>
+            `;
+      });
+      document.getElementById("news-container").innerHTML = html;
+    });
+</script>
