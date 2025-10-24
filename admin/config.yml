@@ -8,10 +8,12 @@ public_folder: "/assets/uploads"
 collections:
   - name: "news"
     label: "Nyheter"
-    folder: "content/news"
+    folder: "data/news"
     create: true
     slug: "{{slug}}"
+    format: "json"
     fields:
       - { label: "Titel", name: "title", widget: "string" }
       - { label: "Datum", name: "date", widget: "datetime" }
+      - { label: "Beskrivning", name: "description", widget: "text" }
       - { label: "Innehåll", name: "body", widget: "markdown" }

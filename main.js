@@ -166,3 +166,78 @@ document.addEventListener("DOMContentLoaded", function () {
     window.location.href = `${window.location.pathname}?invite_token=${token}`;
   }
 });
+// Hämta och visa nyheter
+function loadNews() {
+  // Eftersom nyheterna sparas i GitHub, behöver vi hämta från JSON
+  // Just nu måste vi hämta direkt från GitHub RAW
+  const newsContainer = document.getElementById("news-container");
+
+  if (!newsContainer) return;
+
+  // Temporär lösning - vi länkar till GitHub mappen
+  newsContainer.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <h3>Nyheterna är sparade!</h3>
+            <p>Din nyhet har sparats i CMS:et.</p>
+            <p>För att se alla nyheter, gå till:</p>
+            <a href="https://github.com/ahmadhayel/TennisKlubb/tree/main/content/news" 
+               target="_blank" class="btn" style="margin-top: 1rem;">
+                Visa alla nyheter på GitHub
+            </a>
+        </div>
+    `;
+}
+
+// Ladda nyheter när sidan laddas
+document.addEventListener("DOMContentLoaded", loadNews);
+// Hämta och visa nyheter
+async function loadNews() {
+  const newsContainer = document.getElementById("news-container");
+  if (!newsContainer) return;
+
+  try {
+    // Hämta nyheter från GitHub RAW
+    const response = await fetch(
+      "https://api.github.com/repos/ahmadhayel/TennisKlubb/contents/data/news"
+    );
+    const files = await response.json();
+
+    let newsHTML = '<div class="news-grid">';
+
+    // Hämta varje nyhetsfil
+    for (const file of files) {
+      if (file.name.endsWith(".json")) {
+        const newsResponse = await fetch(file.download_url);
+        const newsItem = await newsResponse.json();
+
+        newsHTML += `
+                    <div class="news-card">
+                        <div class="news-date">${new Date(
+                          newsItem.date
+                        ).toLocaleDateString("sv-SE")}</div>
+                        <h3>${newsItem.title}</h3>
+                        <div class="news-content">
+                            <p>${newsItem.description}</p>
+                        </div>
+                    </div>
+                `;
+      }
+    }
+
+    newsHTML += "</div>";
+    newsContainer.innerHTML = newsHTML;
+  } catch (error) {
+    newsContainer.innerHTML = `
+            <div style="text-align: center; padding: 2rem;">
+                <p>Inga nyheter att visa just nu.</p>
+                <p>Var först med att skriva en nyhet!</p>
+                <a href="/admin/" class="btn" style="margin-top: 1rem;">
+                    Skriv nyhet
+                </a>
+            </div>
+        `;
+  }
+}
+
+// Ladda nyheter när sidan laddas
+document.addEventListener("DOMContentLoaded", loadNews);
