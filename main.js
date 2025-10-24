@@ -151,3 +151,18 @@ Array.from(banner.children).forEach((item) => {
   duplicateNode.setAttribute("aria-hidden", true);
   banner.appendChild(duplicateNode);
 });
+
+// Fix för Netlify Identity länkar
+document.addEventListener("DOMContentLoaded", function () {
+  // Hantera recovery tokens med #
+  if (window.location.hash && window.location.hash.includes("recovery_token")) {
+    const token = window.location.hash.split("recovery_token=")[1];
+    window.location.href = `${window.location.pathname}?recovery_token=${token}`;
+  }
+
+  // Hantera invite tokens med #
+  if (window.location.hash && window.location.hash.includes("invite_token")) {
+    const token = window.location.hash.split("invite_token=")[1];
+    window.location.href = `${window.location.pathname}?invite_token=${token}`;
+  }
+});

@@ -1,6 +1,10 @@
 backend:
   name: git-gateway
   branch: main
+  # LÄGG TILL DETTA:
+  site_domain: mellifluous-axolotl-dd90f8.netlify.app
+
+local_backend: true # Valfritt för lokal utveckling
 
 media_folder: "static/images"
 public_folder: "/images"
