@@ -80,6 +80,7 @@ function updateSwiperImage(eventName, args) {
     );
   }
 }
+
 // Typing animation med textbyte
 document.addEventListener("DOMContentLoaded", function () {
   const textElement = document.getElementById("changing-text");
@@ -131,6 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Starta animation efter 1 sekund
   setTimeout(type, 1000);
 });
+
 const swiper = new Swiper(".swiper", {
   loop: true,
 
@@ -166,31 +168,8 @@ document.addEventListener("DOMContentLoaded", function () {
     window.location.href = `${window.location.pathname}?invite_token=${token}`;
   }
 });
-// Hämta och visa nyheter
-function loadNews() {
-  // Eftersom nyheterna sparas i GitHub, behöver vi hämta från JSON
-  // Just nu måste vi hämta direkt från GitHub RAW
-  const newsContainer = document.getElementById("news-container");
 
-  if (!newsContainer) return;
-
-  // Temporär lösning - vi länkar till GitHub mappen
-  newsContainer.innerHTML = `
-        <div style="text-align: center; padding: 2rem;">
-            <h3>Nyheterna är sparade!</h3>
-            <p>Din nyhet har sparats i CMS:et.</p>
-            <p>För att se alla nyheter, gå till:</p>
-            <a href="https://github.com/ahmadhayel/TennisKlubb/tree/main/content/news" 
-               target="_blank" class="btn" style="margin-top: 1rem;">
-                Visa alla nyheter på GitHub
-            </a>
-        </div>
-    `;
-}
-
-// Ladda nyheter när sidan laddas
-document.addEventListener("DOMContentLoaded", loadNews);
-// Hämta och visa nyheter
+// Hämta och visa nyheter med fullt innehåll
 async function loadNews() {
   const newsContainer = document.getElementById("news-container");
   if (!newsContainer) return;
@@ -204,29 +183,55 @@ async function loadNews() {
 
     let newsHTML = '<div class="news-grid">';
 
-    // Hämta varje nyhetsfil
-    for (const file of files) {
-      if (file.name.endsWith(".json")) {
-        const newsResponse = await fetch(file.download_url);
-        const newsItem = await newsResponse.json();
+    // Sortera filer efter datum (nyast först)
+    const sortedFiles = files
+      .filter((file) => file.name.endsWith(".json"))
+      .sort((a, b) => new Date(b.name) - new Date(a.name));
 
-        newsHTML += `
-                    <div class="news-card">
-                        <div class="news-date">${new Date(
-                          newsItem.date
-                        ).toLocaleDateString("sv-SE")}</div>
-                        <h3>${newsItem.title}</h3>
-                        <div class="news-content">
-                            <p>${newsItem.description}</p>
-                        </div>
+    // Hämta varje nyhetsfil
+    for (const file of sortedFiles.slice(0, 6)) {
+      // Visa max 6 nyheter
+      const newsResponse = await fetch(file.download_url);
+      const newsItem = await newsResponse.json();
+
+      // Konvertera markdown till HTML (enkel version)
+      const contentHTML = convertMarkdown(newsItem.body);
+
+      // Kortare version för "Läs mer"
+      const shortContent =
+        contentHTML.length > 150
+          ? contentHTML.substring(0, 150) + "..."
+          : contentHTML;
+
+      newsHTML += `
+                <div class="news-card">
+                    <div class="news-date">${new Date(
+                      newsItem.date
+                    ).toLocaleDateString("sv-SE")}</div>
+                    <h3>${newsItem.title}</h3>
+                    <div class="news-description">
+                        <p><strong>${newsItem.description}</strong></p>
                     </div>
-                `;
-      }
+                    <div class="news-content">
+                        ${shortContent}
+                        ${
+                          contentHTML.length > 150
+                            ? `<button class="read-more" onclick="showFullContent(this)">Läs mer</button>
+                             <div class="full-content" style="display: none;">
+                                ${contentHTML}
+                                <button class="read-less" onclick="showLessContent(this)" style="margin-top: 1rem;">Visa mindre</button>
+                             </div>`
+                            : ""
+                        }
+                    </div>
+                </div>
+            `;
     }
 
     newsHTML += "</div>";
     newsContainer.innerHTML = newsHTML;
   } catch (error) {
+    console.error("Error loading news:", error);
     newsContainer.innerHTML = `
             <div style="text-align: center; padding: 2rem;">
                 <p>Inga nyheter att visa just nu.</p>
@@ -237,6 +242,44 @@ async function loadNews() {
             </div>
         `;
   }
+}
+
+// Enkel markdown till HTML konvertering
+function convertMarkdown(markdown) {
+  if (!markdown) return "";
+
+  return (
+    markdown
+      // Radbrytningar till <br>
+      .replace(/\n/g, "<br>")
+      // **bold** till <strong>
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      // *italic* till <em>
+      .replace(/\*(.*?)\*/g, "<em>$1</em>")
+      // Länkar [text](url)
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
+  );
+}
+
+// Visa hela innehållet
+function showFullContent(button) {
+  const fullContent = button.nextElementSibling;
+  const newsContent = button.parentElement;
+
+  fullContent.style.display = "block";
+  button.style.display = "none";
+  newsContent.classList.add("expanded");
+}
+
+// Visa mindre innehåll
+function showLessContent(button) {
+  const fullContent = button.parentElement;
+  const newsContent = fullContent.parentElement;
+  const readMoreButton = newsContent.querySelector(".read-more");
+
+  fullContent.style.display = "none";
+  readMoreButton.style.display = "block";
+  newsContent.classList.remove("expanded");
 }
 
 // Ladda nyheter när sidan laddas

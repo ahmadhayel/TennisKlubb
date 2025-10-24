@@ -917,3 +917,38 @@ nav {
   padding: 2rem;
   color: var(--text-light);
 }
+.news-description {
+  background: var(--extra-light);
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--primary-color);
+}
+
+.news-description p {
+  margin: 0;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.news-content {
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.news-content p {
+  margin-bottom: 1rem;
+}
+
+.news-content strong {
+  color: var(--text-dark);
+}
+
+.news-content a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.news-content a:hover {
+  text-decoration: underline;
+}
